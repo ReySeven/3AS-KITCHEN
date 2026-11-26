@@ -23,6 +23,14 @@ export const findByEmail = async (email) => {
     return rows[0] || null;
 };
 
+// decrement attempts by 1
+export const decrementAttempts = async (email) => {
+    await pool.query(
+        `UPDATE otp_tokens SET attempts = attempts - 1 WHERE email = ?`,
+        [email]
+    );
+};
+
 // remove token after successful verification
 export const remove = async (email) => {
     await pool.query('DELETE FROM otp_tokens WHERE email = ?', [email]);

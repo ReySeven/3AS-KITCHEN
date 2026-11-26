@@ -4,6 +4,10 @@ import * as otpModel from '../models/otpModel.js';
 
 const sha = c => crypto.createHash('sha256').update(String(c)).digest('hex');
 
+// rate-limit: track last sent time per email in memory
+const lastSent = new Map();
+const RESEND_COOLDOWN_MS = 60_000; // 1 minute
+
 function makeTransporter() {
     return nodemailer.createTransport({
         service: 'gmail',
@@ -14,12 +18,20 @@ function makeTransporter() {
     });
 }
 
-// send OTP to email
+// send OTP — also used for resend
 export const sendOtp = async (email) => {
+    // rate-limit check
+    const last = lastSent.get(email);
+    if (last && Date.now() - last < RESEND_COOLDOWN_MS) {
+        const wait = Math.ceil((RESEND_COOLDOWN_MS - (Date.now() - last)) / 1000);
+        throw new Error(`Please wait ${wait} seconds before requesting another code.`);
+    }
+
     const code      = String(crypto.randomInt(100_000, 1_000_000));
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
     await otpModel.save(email, code, expiresAt);
+    lastSent.set(email, Date.now());
 
     const transporter = makeTransporter();
     await transporter.sendMail({
@@ -51,21 +63,39 @@ export const sendOtp = async (email) => {
     return 'Code sent.';
 };
 
-// verify OTP
+// verify OTP — checks expiry, attempts, and correct code
 export const verifyOtp = async (email, code) => {
     const token = await otpModel.findByEmail(email);
 
+    // no token found
     if (!token) {
         throw new Error('No code was sent to this email. Request a new one.');
     }
+
+    // code expired
     if (new Date() > new Date(token.expires_at)) {
         await otpModel.remove(email);
         throw new Error('This code has expired. Request a new one.');
     }
-    if (sha(code) !== token.code_hash) {
-        throw new Error('Incorrect code.');
+
+    // attempts used up
+    if (token.attempts < 1) {
+        throw new Error('Too many incorrect attempts. Request a new code.');
     }
 
+    // wrong code
+    if (sha(code) !== token.code_hash) {
+        await otpModel.decrementAttempts(email);
+        const left = token.attempts - 1;
+        if (left < 1) {
+            throw new Error('Too many incorrect attempts. Request a new code.');
+        }
+        throw new Error(
+            `Incorrect code. ${left} attempt${left > 1 ? 's' : ''} left.`
+        );
+    }
+
+    // correct — remove token
     await otpModel.remove(email);
     return true;
 };

@@ -41,6 +41,28 @@ export default function OtpPage() {
     return { ok: res.ok, data };
   }
 
+  // resend — generates a new code
+  async function handleResend() {
+    if (!reg) return;
+    setNote('');
+    setError('');
+    setLoading(true);
+    try {
+      const { ok, data } = await post('/otp/send', { email: reg.email });
+      setCode('');
+      if (!ok) {
+        setError(data.error || 'Failed to resend code.');
+      } else {
+        setNote('A new code was sent to your email.');
+      }
+    } catch {
+      setError('Cannot reach the server.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // verify then create account
   async function handleSubmit(e) {
     e.preventDefault();
     if (!reg) return;
@@ -57,6 +79,7 @@ export default function OtpPage() {
 
     try {
       // Step 1 — verify OTP
+      // shows: incorrect / expired / used-up messages from backend
       const { ok: otpOk, data: otpData } = await post('/otp/verify', {
         email: reg.email,
         code:  trimmed,
@@ -80,7 +103,7 @@ export default function OtpPage() {
         return;
       }
 
-      // Done — go to login with success message
+      // Done — redirect to login with success message
       sessionStorage.removeItem('3a_reg');
       sessionStorage.setItem('3a_prefill', reg.email);
       flash('Email verified! Your account is ready. Please log in.');
@@ -108,7 +131,7 @@ export default function OtpPage() {
         note={note}
         loading={loading}
         onSubmit={handleSubmit}
-        onResend={() => {}}
+        onResend={handleResend}
       />
     </div>
   );

@@ -12,7 +12,7 @@ const OtpForm = ({
         <div>
           <h2>Verify your email</h2>
           <p className="muted">
-            We sent a 6-digit code to <b>{email}</b>.<br/>
+            We sent a 6-digit code to <b>{email}</b>.<br />
             It expires in 10 minutes.
           </p>
         </div>
@@ -33,6 +33,7 @@ const OtpForm = ({
               autoFocus
             />
           </label>
+          {/* shows incorrect / expired / used-up messages */}
           {error && <p className="er">{error}</p>}
         </div>
 
@@ -41,6 +42,7 @@ const OtpForm = ({
         </button>
 
         <div className="row" style={{ justifyContent: 'center', gap: '12px' }}>
+          {/* resend code link */}
           <button
             type="button"
             className="button secondary small"
@@ -50,6 +52,7 @@ const OtpForm = ({
             Resend code
           </button>
           <span className="muted">·</span>
+          {/* change email link — goes back to register */}
           <Link to="/register" className="small">Change email</Link>
         </div>
 

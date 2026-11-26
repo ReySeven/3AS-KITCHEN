@@ -2,12 +2,12 @@ import express       from 'express';
 import cors          from 'cors';
 import session       from 'express-session';
 import userRoute     from './routes/userRoute.js';
-import itemRoute     from './routes/itemRoute.js';
-import orderRoute    from './routes/orderRoute.js';
-import riderRoute    from './routes/riderRoute.js';
-import promoRoute    from './routes/promoRoute.js';
-import expenseRoute  from './routes/expenseRoute.js';
-import feedbackRoute from './routes/feedbackRoute.js';
+//import itemRoute     from './routes/itemRoute.js';
+//import orderRoute    from './routes/orderRoute.js';
+//import riderRoute    from './routes/riderRoute.js';
+//import promoRoute    from './routes/promoRoute.js';
+//import expenseRoute  from './routes/expenseRoute.js';
+//import feedbackRoute from './routes/feedbackRoute.js';
 
 const app = express();
 
@@ -29,12 +29,12 @@ app.use(session({
 }));
 
 app.use('/users',    userRoute);
-app.use('/items',    itemRoute);
-app.use('/orders',   orderRoute);
-app.use('/riders',   riderRoute);
-app.use('/promos',   promoRoute);
-app.use('/expenses', expenseRoute);
-app.use('/feedback', feedbackRoute);
+//app.use('/items',    itemRoute);
+//app.use('/orders',   orderRoute);
+//app.use('/riders',   riderRoute);
+//app.use('/promos',   promoRoute);
+//app.use('/expenses', expenseRoute);
+//app.use('/feedback', feedbackRoute);
 
 const port = 3000;
 app.listen(port, () => {

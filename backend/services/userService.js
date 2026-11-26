@@ -1,5 +1,5 @@
 import * as userModel  from '../models/userModel.js';
-import * as riderModel from '../models/riderModel.js';
+//import * as riderModel from '../models/riderModel.js';
 import validator from 'validator';
 import bcrypt    from 'bcryptjs';
 
