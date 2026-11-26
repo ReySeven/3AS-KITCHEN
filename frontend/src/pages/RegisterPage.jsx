@@ -62,7 +62,7 @@ export default function RegisterPage() {
       setLoading(false);
     }
   }
-
+//
   return (
     <div className="split">
       <AuthHero
@@ -85,3 +85,4 @@ export default function RegisterPage() {
     </div>
   );
 }
+

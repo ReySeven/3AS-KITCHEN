@@ -67,7 +67,6 @@ export const login = async (user) => {
 
     const { id, name, email, role } = existing.user;
 
-    // rider-specific: check account is still active
     let riderId = null;
     if (role === 'r') {
         const rider = await riderModel.findRiderByUserId(id);
